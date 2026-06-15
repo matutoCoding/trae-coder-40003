@@ -3,13 +3,18 @@ import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import RecordItem from '@/components/RecordItem';
-import { degreasingRecords, picklingRecords, chromeRecords, nickelRecords, bathAnalyses } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const tabs = ['前处理', '镀种工艺', '槽液管理'];
 
 const ProductionPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const degreasingRecords = usePlatingStore(state => state.degreasingRecords);
+  const picklingRecords = usePlatingStore(state => state.picklingRecords);
+  const chromeRecords = usePlatingStore(state => state.chromeRecords);
+  const nickelRecords = usePlatingStore(state => state.nickelRecords);
+  const bathAnalyses = usePlatingStore(state => state.bathAnalyses);
 
   const handleAdd = () => {
     const paths = ['/pages/degreasing/index', '/pages/chrome/index', '/pages/bath/index'];

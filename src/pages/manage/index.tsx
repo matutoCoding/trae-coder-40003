@@ -3,22 +3,25 @@ import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import RecordItem from '@/components/RecordItem';
-import { rackInspections, reworkRecords, wastewaterRecords } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const tabs = ['挂具检查', '退镀返工', '废水处理'];
 
 const ManagePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const rackInspections = usePlatingStore(state => state.rackInspections);
+  const reworkRecords = usePlatingStore(state => state.reworkRecords);
+  const wastewaterRecords = usePlatingStore(state => state.wastewaterRecords);
 
   const handleAdd = () => {
     const paths = ['/pages/rack/index', '/pages/rework/index', '/pages/wastewater/index'];
     Taro.navigateTo({ url: paths[activeTab] });
   };
 
-  const wastewaterPassRate = Math.round(
-    (wastewaterRecords.filter(r => r.result === 'pass').length / wastewaterRecords.length) * 100
-  );
+  const wastewaterPassRate = wastewaterRecords.length > 0
+    ? Math.round((wastewaterRecords.filter(r => r.result === 'pass').length / wastewaterRecords.length) * 100)
+    : 0;
 
   const renderRack = () => (
     <View>

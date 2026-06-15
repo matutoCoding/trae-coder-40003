@@ -52,6 +52,30 @@
   text-align: right;
 }
 
+.pickerRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.pickerItem {
+  padding: 8rpx 24rpx;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.pickerItemActive {
+  background: rgba($color-primary, 0.1);
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
 .submitButton {
   width: 100%;
   height: $button-height-lg;

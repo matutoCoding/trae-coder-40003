@@ -1,26 +1,53 @@
 import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { nickelRecords } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const NickelPage: React.FC = () => {
+  const nickelRecords = usePlatingStore(state => state.nickelRecords);
+  const addNickel = usePlatingStore(state => state.addNickel);
+
   const [brightenerAdded, setBrightenerAdded] = useState('');
   const [currentDensity, setCurrentDensity] = useState('');
   const [temperature, setTemperature] = useState('');
   const [platingTime, setPlatingTime] = useState('');
+  const [operator, setOperator] = useState('');
 
   const handleSubmit = () => {
-    if (!brightenerAdded || !currentDensity || !temperature || !platingTime) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!brightenerAdded || parseFloat(brightenerAdded) <= 0) {
+      Taro.showToast({ title: '请输入有效光亮剂添加量', icon: 'none' });
       return;
     }
-    console.info('[Nickel] 提交记录', { brightenerAdded, currentDensity, temperature, platingTime });
-    Taro.showToast({ title: '记录已提交', icon: 'success' });
+    if (!currentDensity || parseFloat(currentDensity) <= 0) {
+      Taro.showToast({ title: '请输入有效电流密度', icon: 'none' });
+      return;
+    }
+    if (!temperature || parseFloat(temperature) <= 0) {
+      Taro.showToast({ title: '请输入有效温度', icon: 'none' });
+      return;
+    }
+    if (!platingTime || parseFloat(platingTime) <= 0) {
+      Taro.showToast({ title: '请输入有效电镀时间', icon: 'none' });
+      return;
+    }
+
+    console.log('[Nickel] 提交记录', { brightenerAdded, currentDensity, temperature, platingTime, operator });
+
+    addNickel({
+      brightenerAdded: parseFloat(brightenerAdded),
+      currentDensity: parseFloat(currentDensity),
+      temperature: parseFloat(temperature),
+      platingTime: parseFloat(platingTime),
+      operator: operator.trim() || '操作员',
+    });
+
+    Taro.showToast({ title: '记录已保存', icon: 'success' });
     setBrightenerAdded('');
     setCurrentDensity('');
     setTemperature('');
     setPlatingTime('');
+    setOperator('');
   };
 
   return (
@@ -45,6 +72,10 @@ const NickelPage: React.FC = () => {
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>电镀时间(min)</Text>
           <Input className={styles.formInput} type="digit" placeholder="请输入时间" value={platingTime} onInput={e => setPlatingTime(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>操作员</Text>
+          <Input className={styles.formInput} placeholder="请输入操作员" value={operator} onInput={e => setOperator(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交记录</Text>

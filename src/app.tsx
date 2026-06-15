@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
 import { useDidShow, useDidHide } from '@tarojs/taro';
-// 全局样式
+import { usePlatingStore } from '@/store/plating';
 import './app.scss';
 
 function App(props) {
-  // 可以使用所有的 React Hooks
-  useEffect(() => {});
+  const initialize = usePlatingStore(state => state.initialize);
 
-  // 对应 onShow
+  useEffect(() => {
+    console.log('[App] 初始化 store，从本地存储加载数据');
+    initialize();
+  }, [initialize]);
+
   useDidShow(() => {});
-
-  // 对应 onHide
   useDidHide(() => {});
 
   return props.children;

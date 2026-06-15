@@ -4,25 +4,232 @@
   min-height: 100vh;
   padding: 0 $page-padding 40rpx;
   background: $color-bg-page;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-.icon {
-  font-size: 80rpx;
+.formSection {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
   margin-bottom: $spacing-lg;
 }
 
-.title {
+.formTitle {
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  padding-left: $spacing-sm;
+  border-left: 6rpx solid #f53f3f;
+}
+
+.formRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.formLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+  padding-top: 8rpx;
+}
+
+.formInput {
+  width: 300rpx;
+  height: 64rpx;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  text-align: right;
+}
+
+.formTextarea {
+  width: 300rpx;
+  min-height: 100rpx;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-loose;
+}
+
+.pickerRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: flex-end;
+  max-width: 400rpx;
+}
+
+.pickerItem {
+  padding: 8rpx 20rpx;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.pickerItemActive {
+  background: rgba($color-primary, 0.1);
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.statusSelector {
+  display: flex;
+  gap: $spacing-sm;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  max-width: 400rpx;
+}
+
+.statusButton {
+  padding: 8rpx 24rpx;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.statusButtonPending {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+
+.statusButtonPendingActive {
+  background: $color-warning;
+  color: $color-text-white;
+}
+
+.statusButtonProcessing {
+  background: rgba($color-info, 0.1);
+  color: $color-info;
+}
+
+.statusButtonProcessingActive {
+  background: $color-info;
+  color: $color-text-white;
+}
+
+.statusButtonCompleted {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.statusButtonCompletedActive {
+  background: $color-success;
+  color: $color-text-white;
+}
+
+.submitButton {
+  width: 100%;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, #f53f3f 0%, #ff6b6b 100%);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: $spacing-xl;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitButtonText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text-white;
+}
+
+.recordCard {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.recordHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: $spacing-sm;
 }
 
-.desc {
+.recordId {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.statusPending {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  color: $color-warning;
+  background: rgba($color-warning, 0.1);
+}
+
+.statusProcessing {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  color: $color-info;
+  background: rgba($color-info, 0.1);
+}
+
+.statusCompleted {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  color: $color-success;
+  background: rgba($color-success, 0.1);
+}
+
+.recordDetail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs $spacing-lg;
+}
+
+.detailItem {
   font-size: $font-size-sm;
-  color: $color-text-tertiary;
+  color: $color-text-secondary;
+}
+
+.reasonItem {
+  width: 100%;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($color-error, 0.05);
+  border-radius: $radius-sm;
+  margin-top: $spacing-sm;
 }

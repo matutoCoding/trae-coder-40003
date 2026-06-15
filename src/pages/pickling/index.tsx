@@ -2,24 +2,47 @@ import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { picklingRecords } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const PicklingPage: React.FC = () => {
+  const picklingRecords = usePlatingStore(state => state.picklingRecords);
+  const addPickling = usePlatingStore(state => state.addPickling);
+
   const [acidType, setAcidType] = useState('');
   const [concentration, setConcentration] = useState('');
   const [duration, setDuration] = useState('');
+  const [operator, setOperator] = useState('');
 
   const handleSubmit = () => {
-    if (!acidType || !concentration || !duration) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!acidType.trim()) {
+      Taro.showToast({ title: '请输入酸洗类型', icon: 'none' });
       return;
     }
-    console.info('[Pickling] 提交记录', { acidType, concentration, duration });
-    Taro.showToast({ title: '记录已提交', icon: 'success' });
+    if (!concentration || parseFloat(concentration) <= 0) {
+      Taro.showToast({ title: '请输入有效浓度', icon: 'none' });
+      return;
+    }
+    if (!duration || parseFloat(duration) <= 0) {
+      Taro.showToast({ title: '请输入有效时长', icon: 'none' });
+      return;
+    }
+
+    console.log('[Pickling] 提交记录', { acidType, concentration, duration, operator });
+
+    addPickling({
+      acidType: acidType.trim(),
+      concentration: parseFloat(concentration),
+      duration: parseFloat(duration),
+      operator: operator.trim() || '操作员',
+      status: 'pass',
+    });
+
+    Taro.showToast({ title: '记录已保存', icon: 'success' });
     setAcidType('');
     setConcentration('');
     setDuration('');
+    setOperator('');
   };
 
   return (
@@ -37,6 +60,10 @@ const PicklingPage: React.FC = () => {
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>活化时长(min)</Text>
           <Input className={styles.formInput} type="digit" placeholder="请输入时长" value={duration} onInput={e => setDuration(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>操作员</Text>
+          <Input className={styles.formInput} placeholder="请输入操作员" value={operator} onInput={e => setOperator(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交记录</Text>

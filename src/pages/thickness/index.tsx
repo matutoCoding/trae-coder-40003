@@ -2,24 +2,65 @@ import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { thicknessMeasurements } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
+const standardThickness: Record<string, { min: number; max: number }> = {
+  'chrome': { min: 18, max: 25 },
+  'nickel': { min: 10, max: 15 },
+};
+
 const ThicknessPage: React.FC = () => {
+  const thicknessMeasurements = usePlatingStore(state => state.thicknessMeasurements);
+  const addThickness = usePlatingStore(state => state.addThickness);
+
   const [workpieceId, setWorkpieceId] = useState('');
-  const [platingType, setPlatingType] = useState('');
+  const [platingType, setPlatingType] = useState<'chrome' | 'nickel' | ''>('');
   const [thickness, setThickness] = useState('');
+  const [inspector, setInspector] = useState('');
+
+  const getResult = (type: string, thick: number): 'pass' | 'fail' => {
+    const standard = standardThickness[type];
+    if (!standard) return 'pass';
+    return thick >= standard.min && thick <= standard.max ? 'pass' : 'fail';
+  };
 
   const handleSubmit = () => {
-    if (!workpieceId || !platingType || !thickness) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!workpieceId.trim()) {
+      Taro.showToast({ title: '请输入工件编号', icon: 'none' });
       return;
     }
-    console.info('[Thickness] 提交测量', { workpieceId, platingType, thickness });
-    Taro.showToast({ title: '测量已提交', icon: 'success' });
+    if (!platingType) {
+      Taro.showToast({ title: '请输入镀种类型', icon: 'none' });
+      return;
+    }
+    if (!thickness || parseFloat(thickness) <= 0) {
+      Taro.showToast({ title: '请输入有效厚度', icon: 'none' });
+      return;
+    }
+
+    const thick = parseFloat(thickness);
+    const type = platingType as 'chrome' | 'nickel';
+    const standard = standardThickness[type] || { min: 10, max: 20 };
+    const result = getResult(type, thick);
+
+    console.log('[Thickness] 提交测量', { workpieceId, platingType, thickness, inspector, result });
+
+    addThickness({
+      workpieceId: workpieceId.trim(),
+      platingType: type,
+      thickness: thick,
+      standardMin: standard.min,
+      standardMax: standard.max,
+      result,
+      inspector: inspector.trim() || '检验员',
+    });
+
+    Taro.showToast({ title: '测量已保存', icon: 'success' });
     setWorkpieceId('');
     setPlatingType('');
     setThickness('');
+    setInspector('');
   };
 
   return (
@@ -32,11 +73,28 @@ const ThicknessPage: React.FC = () => {
         </View>
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>镀种类型</Text>
-          <Input className={styles.formInput} placeholder="chrome/nickel" value={platingType} onInput={e => setPlatingType(e.detail.value)} />
+          <View className={styles.pickerRow}>
+            <View
+              className={classnames(styles.pickerItem, platingType === 'chrome' && styles.pickerItemActive)}
+              onClick={() => setPlatingType('chrome')}
+            >
+              <Text>镀铬</Text>
+            </View>
+            <View
+              className={classnames(styles.pickerItem, platingType === 'nickel' && styles.pickerItemActive)}
+              onClick={() => setPlatingType('nickel')}
+            >
+              <Text>镀镍</Text>
+            </View>
+          </View>
         </View>
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>测量厚度(μm)</Text>
           <Input className={styles.formInput} type="digit" placeholder="请输入厚度" value={thickness} onInput={e => setThickness(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>检验员</Text>
+          <Input className={styles.formInput} placeholder="请输入检验员" value={inspector} onInput={e => setInspector(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交测量</Text>

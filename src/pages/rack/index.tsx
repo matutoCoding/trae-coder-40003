@@ -2,22 +2,49 @@ import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { rackInspections } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const RackPage: React.FC = () => {
+  const rackInspections = usePlatingStore(state => state.rackInspections);
+  const addRack = usePlatingStore(state => state.addRack);
+
   const [rackId, setRackId] = useState('');
   const [contactResistance, setContactResistance] = useState('');
+  const [inspector, setInspector] = useState('');
+
+  const getConductivity = (resistance: number): 'good' | 'poor' | 'failed' => {
+    if (resistance <= 5) return 'good';
+    if (resistance <= 10) return 'poor';
+    return 'failed';
+  };
 
   const handleSubmit = () => {
-    if (!rackId || !contactResistance) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!rackId.trim()) {
+      Taro.showToast({ title: '请输入挂具编号', icon: 'none' });
       return;
     }
-    console.info('[Rack] 提交检查', { rackId, contactResistance });
-    Taro.showToast({ title: '检查已提交', icon: 'success' });
+    if (!contactResistance || parseFloat(contactResistance) < 0) {
+      Taro.showToast({ title: '请输入有效电阻值', icon: 'none' });
+      return;
+    }
+
+    const resistance = parseFloat(contactResistance);
+    const conductivity = getConductivity(resistance);
+
+    console.log('[Rack] 提交检查', { rackId, contactResistance, inspector, conductivity });
+
+    addRack({
+      rackId: rackId.trim(),
+      contactResistance: resistance,
+      conductivity,
+      inspector: inspector.trim() || '检查员',
+    });
+
+    Taro.showToast({ title: '检查已保存', icon: 'success' });
     setRackId('');
     setContactResistance('');
+    setInspector('');
   };
 
   return (
@@ -31,6 +58,10 @@ const RackPage: React.FC = () => {
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>接触电阻(mΩ)</Text>
           <Input className={styles.formInput} type="digit" placeholder="请输入电阻值" value={contactResistance} onInput={e => setContactResistance(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>检查员</Text>
+          <Input className={styles.formInput} placeholder="请输入检查员" value={inspector} onInput={e => setInspector(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交检查</Text>

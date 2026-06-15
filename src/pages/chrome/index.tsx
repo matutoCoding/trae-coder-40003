@@ -1,26 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { chromeRecords } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const ChromePage: React.FC = () => {
+  const chromeRecords = usePlatingStore(state => state.chromeRecords);
+  const addChrome = usePlatingStore(state => state.addChrome);
+
   const [currentDensity, setCurrentDensity] = useState('');
   const [temperature, setTemperature] = useState('');
   const [platingTime, setPlatingTime] = useState('');
   const [targetThickness, setTargetThickness] = useState('');
+  const [operator, setOperator] = useState('');
 
   const handleSubmit = () => {
-    if (!currentDensity || !temperature || !platingTime) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!currentDensity || parseFloat(currentDensity) <= 0) {
+      Taro.showToast({ title: '请输入有效电流密度', icon: 'none' });
       return;
     }
-    console.info('[Chrome] 提交记录', { currentDensity, temperature, platingTime, targetThickness });
-    Taro.showToast({ title: '记录已提交', icon: 'success' });
+    if (!temperature || parseFloat(temperature) <= 0) {
+      Taro.showToast({ title: '请输入有效温度', icon: 'none' });
+      return;
+    }
+    if (!platingTime || parseFloat(platingTime) <= 0) {
+      Taro.showToast({ title: '请输入有效电镀时间', icon: 'none' });
+      return;
+    }
+
+    console.log('[Chrome] 提交记录', { currentDensity, temperature, platingTime, targetThickness, operator });
+
+    addChrome({
+      currentDensity: parseFloat(currentDensity),
+      temperature: parseFloat(temperature),
+      platingTime: parseFloat(platingTime),
+      targetThickness: targetThickness ? parseFloat(targetThickness) : 20,
+      operator: operator.trim() || '操作员',
+    });
+
+    Taro.showToast({ title: '记录已保存', icon: 'success' });
     setCurrentDensity('');
     setTemperature('');
     setPlatingTime('');
     setTargetThickness('');
+    setOperator('');
   };
 
   return (
@@ -45,6 +68,10 @@ const ChromePage: React.FC = () => {
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>目标厚度(μm)</Text>
           <Input className={styles.formInput} type="digit" placeholder="18-25" value={targetThickness} onInput={e => setTargetThickness(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>操作员</Text>
+          <Input className={styles.formInput} placeholder="请输入操作员" value={operator} onInput={e => setOperator(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交记录</Text>

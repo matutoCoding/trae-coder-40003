@@ -2,24 +2,47 @@ import React, { useState } from 'react';
 import { View, Text, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
-import { degreasingRecords } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const DegreasingPage: React.FC = () => {
+  const degreasingRecords = usePlatingStore(state => state.degreasingRecords);
+  const addDegreasing = usePlatingStore(state => state.addDegreasing);
+
   const [method, setMethod] = useState('');
   const [temperature, setTemperature] = useState('');
   const [duration, setDuration] = useState('');
+  const [operator, setOperator] = useState('');
 
   const handleSubmit = () => {
-    if (!method || !temperature || !duration) {
-      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+    if (!method.trim()) {
+      Taro.showToast({ title: '请输入除油方式', icon: 'none' });
       return;
     }
-    console.info('[Degreasing] 提交记录', { method, temperature, duration });
-    Taro.showToast({ title: '记录已提交', icon: 'success' });
+    if (!temperature || parseFloat(temperature) <= 0) {
+      Taro.showToast({ title: '请输入有效温度', icon: 'none' });
+      return;
+    }
+    if (!duration || parseFloat(duration) <= 0) {
+      Taro.showToast({ title: '请输入有效时长', icon: 'none' });
+      return;
+    }
+
+    console.log('[Degreasing] 提交记录', { method, temperature, duration, operator });
+
+    addDegreasing({
+      method: method.trim(),
+      temperature: parseFloat(temperature),
+      duration: parseFloat(duration),
+      operator: operator.trim() || '操作员',
+      status: 'pass',
+    });
+
+    Taro.showToast({ title: '记录已保存', icon: 'success' });
     setMethod('');
     setTemperature('');
     setDuration('');
+    setOperator('');
   };
 
   return (
@@ -37,6 +60,10 @@ const DegreasingPage: React.FC = () => {
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>时长(min)</Text>
           <Input className={styles.formInput} type="digit" placeholder="请输入时长" value={duration} onInput={e => setDuration(e.detail.value)} />
+        </View>
+        <View className={styles.formRow}>
+          <Text className={styles.formLabel}>操作员</Text>
+          <Input className={styles.formInput} placeholder="请输入操作员" value={operator} onInput={e => setOperator(e.detail.value)} />
         </View>
         <View className={styles.submitButton} onClick={handleSubmit}>
           <Text className={styles.submitButtonText}>提交记录</Text>

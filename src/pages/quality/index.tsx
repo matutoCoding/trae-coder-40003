@@ -3,28 +3,31 @@ import { View, Text } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classnames from 'classnames';
 import RecordItem from '@/components/RecordItem';
-import { thicknessMeasurements, bondTests, saltSprayTests } from '@/data/plating';
+import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
 
 const tabs = ['镀层厚度', '结合力试验', '盐雾试验'];
 
 const QualityPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const thicknessMeasurements = usePlatingStore(state => state.thicknessMeasurements);
+  const bondTests = usePlatingStore(state => state.bondTests);
+  const saltSprayTests = usePlatingStore(state => state.saltSprayTests);
 
   const handleAdd = () => {
     const paths = ['/pages/thickness/index', '/pages/bond/index', '/pages/salt-spray/index'];
     Taro.navigateTo({ url: paths[activeTab] });
   };
 
-  const thicknessPassRate = Math.round(
-    (thicknessMeasurements.filter(r => r.result === 'pass').length / thicknessMeasurements.length) * 100
-  );
-  const bondPassRate = Math.round(
-    (bondTests.filter(r => r.result === 'pass').length / bondTests.length) * 100
-  );
-  const saltPassRate = Math.round(
-    (saltSprayTests.filter(r => r.result === 'pass').length / saltSprayTests.length) * 100
-  );
+  const thicknessPassRate = thicknessMeasurements.length > 0
+    ? Math.round((thicknessMeasurements.filter(r => r.result === 'pass').length / thicknessMeasurements.length) * 100)
+    : 0;
+  const bondPassRate = bondTests.length > 0
+    ? Math.round((bondTests.filter(r => r.result === 'pass').length / bondTests.length) * 100)
+    : 0;
+  const saltPassRate = saltSprayTests.length > 0
+    ? Math.round((saltSprayTests.filter(r => r.result === 'pass').length / saltSprayTests.length) * 100)
+    : 0;
 
   const renderThickness = () => (
     <View>
