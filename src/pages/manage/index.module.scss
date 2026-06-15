@@ -66,6 +66,22 @@
   color: $color-text-primary;
 }
 
+.sectionCount {
+  margin-left: auto;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.emptyState {
+  padding: $spacing-xl 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
 .summaryCards {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

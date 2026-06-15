@@ -15,6 +15,7 @@ export default defineAppConfig({
     'pages/salt-spray/index',
     'pages/rework/index',
     'pages/wastewater/index',
+    'pages/record-detail/index',
   ],
   window: {
     backgroundTextStyle: 'light',

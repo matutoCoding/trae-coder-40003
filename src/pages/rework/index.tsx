@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Input } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import { usePlatingStore } from '@/store/plating';
 import styles from './index.module.scss';
@@ -19,6 +19,7 @@ const statuses: { key: 'pending' | 'processing' | 'completed'; label: string }[]
 ];
 
 const ReworkPage: React.FC = () => {
+  const router = useRouter();
   const reworkRecords = usePlatingStore(state => state.reworkRecords);
   const addRework = usePlatingStore(state => state.addRework);
 
@@ -28,6 +29,23 @@ const ReworkPage: React.FC = () => {
   const [method, setMethod] = useState('');
   const [status, setStatus] = useState<'pending' | 'processing' | 'completed' | ''>('');
   const [operator, setOperator] = useState('');
+  const [sourceType, setSourceType] = useState<'thickness' | 'bond' | 'saltSpray' | ''>('');
+  const [sourceId, setSourceId] = useState('');
+
+  useEffect(() => {
+    if (router.params.workpieceId) {
+      setWorkpieceId(decodeURIComponent(router.params.workpieceId));
+    }
+    if (router.params.reason) {
+      setReason(decodeURIComponent(router.params.reason));
+    }
+    if (router.params.sourceType) {
+      setSourceType(router.params.sourceType as 'thickness' | 'bond' | 'saltSpray');
+    }
+    if (router.params.sourceId) {
+      setSourceId(router.params.sourceId);
+    }
+  }, [router.params]);
 
   const handleSubmit = () => {
     if (!workpieceId.trim()) {
@@ -51,7 +69,7 @@ const ReworkPage: React.FC = () => {
       return;
     }
 
-    console.log('[Rework] 提交记录', { workpieceId, reason, reworkType, method, status, operator });
+    console.log('[Rework] 提交记录', { workpieceId, reason, reworkType, method, status, operator, sourceType, sourceId });
 
     addRework({
       workpieceId: workpieceId.trim(),
@@ -60,9 +78,17 @@ const ReworkPage: React.FC = () => {
       method: method.trim(),
       status: status as 'pending' | 'processing' | 'completed',
       operator: operator.trim() || '操作员',
+      sourceType: sourceType || undefined,
+      sourceId: sourceId || undefined,
     });
 
     Taro.showToast({ title: '记录已保存', icon: 'success' });
+
+    if (sourceType) {
+      setTimeout(() => {
+        Taro.navigateBack();
+      }, 1500);
+    }
   };
 
   const getStatusClass = (s: string) => {
@@ -83,10 +109,39 @@ const ReworkPage: React.FC = () => {
     }
   };
 
+  const getSourceName = (type: string) => {
+    const map: Record<string, string> = {
+      thickness: '镀层厚度检测',
+      bond: '结合力试验',
+      saltSpray: '盐雾试验',
+    };
+    return map[type] || type;
+  };
+
+  const statusButtonClassMap: Record<string, string> = {
+    pending: 'statusButtonPending',
+    processing: 'statusButtonProcessing',
+    completed: 'statusButtonCompleted',
+  };
+
+  const statusButtonActiveClassMap: Record<string, string> = {
+    pending: 'statusButtonPendingActive',
+    processing: 'statusButtonProcessingActive',
+    completed: 'statusButtonCompletedActive',
+  };
+
   return (
     <View className={styles.container}>
       <View className={styles.formSection}>
         <Text className={styles.formTitle}>新增退镀返工</Text>
+
+        {sourceType && (
+          <View className={styles.sourceTip}>
+            <Text className={styles.sourceTipText}>
+              来源：{getSourceName(sourceType)} · {sourceId}
+            </Text>
+          </View>
+        )}
 
         <View className={styles.formRow}>
           <Text className={styles.formLabel}>工件编号</Text>
@@ -146,8 +201,8 @@ const ReworkPage: React.FC = () => {
                 key={s.key}
                 className={classnames(
                   styles.statusButton,
-                  styles[`statusButton${s.key.charAt(0).toUpperCase() + s.key.slice(1)}`],
-                  status === s.key && styles[`statusButton${s.key.charAt(0).toUpperCase() + s.key.slice(1)}Active`]
+                  styles[statusButtonClassMap[s.key]],
+                  status === s.key && styles[statusButtonActiveClassMap[s.key]]
                 )}
                 onClick={() => setStatus(s.key)}
               >
@@ -188,6 +243,9 @@ const ReworkPage: React.FC = () => {
             <Text className={styles.detailItem}>{record.date}</Text>
           </View>
           <Text className={styles.reasonItem}>原因：{record.reason}</Text>
+          {record.sourceType && (
+            <Text className={styles.sourceItem}>来源：{getSourceName(record.sourceType)} · {record.sourceId}</Text>
+          )}
         </View>
       ))}
     </View>

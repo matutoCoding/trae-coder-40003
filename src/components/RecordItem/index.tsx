@@ -3,16 +3,18 @@ import { View, Text } from '@tarojs/components';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 
+export type TagType = 'pass' | 'fail' | 'warning' | 'info' | 'pending' | 'processing' | 'completed';
+
 interface RecordItemProps {
   title: string;
   subtitle?: string;
-  tags?: { text: string; type: 'pass' | 'fail' | 'warning' | 'info' | 'pending' | 'processing' | 'completed' }[];
+  tags?: { text: string; type: TagType }[];
   rightText?: string;
   rightSubText?: string;
   onClick?: () => void;
 }
 
-const tagTypeMap: Record<string, string> = {
+const tagTypeMap: Record<TagType, string> = {
   pass: '通过',
   fail: '不合格',
   warning: '异常',
@@ -20,6 +22,16 @@ const tagTypeMap: Record<string, string> = {
   pending: '待处理',
   processing: '处理中',
   completed: '已完成',
+};
+
+const tagClassMap: Record<TagType, string> = {
+  pass: 'tagPass',
+  fail: 'tagFail',
+  warning: 'tagWarning',
+  info: 'tagInfo',
+  pending: 'tagPending',
+  processing: 'tagProcessing',
+  completed: 'tagCompleted',
 };
 
 const RecordItem: React.FC<RecordItemProps> = ({ title, subtitle, tags, rightText, rightSubText, onClick }) => {
@@ -31,7 +43,7 @@ const RecordItem: React.FC<RecordItemProps> = ({ title, subtitle, tags, rightTex
         {tags && tags.length > 0 && (
           <View className={styles.tagRow}>
             {tags.map((tag, idx) => (
-              <View key={idx} className={classnames(styles.tag, styles[`tag${tag.type.charAt(0).toUpperCase() + tag.type.slice(1)}`])}>
+              <View key={idx} className={classnames(styles.tag, styles[tagClassMap[tag.type]])}>
                 <Text className={styles.tagText}>{tag.text || tagTypeMap[tag.type]}</Text>
               </View>
             ))}

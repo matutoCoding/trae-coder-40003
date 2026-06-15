@@ -101,6 +101,8 @@ export interface ReworkRecord {
   method: string;
   operator: string;
   status: 'pending' | 'processing' | 'completed';
+  sourceType?: 'thickness' | 'bond' | 'saltSpray';
+  sourceId?: string;
 }
 
 export interface WastewaterRecord {
