@@ -1,0 +1,65 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  position: relative;
+  overflow: hidden;
+}
+
+.statusNormal {
+  border-left: 6rpx solid $color-success;
+}
+
+.statusWarning {
+  border-left: 6rpx solid $color-warning;
+}
+
+.statusError {
+  border-left: 6rpx solid $color-error;
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-sm;
+}
+
+.valueRow {
+  display: flex;
+  align-items: baseline;
+}
+
+.value {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.unit {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.trend {
+  position: absolute;
+  top: $spacing-lg;
+  right: $spacing-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.trendUp {
+  color: $color-error;
+}
+
+.trendDown {
+  color: $color-success;
+}
+
+.trendStable {
+  color: $color-text-tertiary;
+}
